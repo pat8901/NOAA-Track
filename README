@@ -1,0 +1,37 @@
+NOAA Weather Dashboard
+
+Welcome to the NOAA Weather Dashboard! This application is built using Blazor Server and provides an interactive interface for displaying weather data from various NOAA (National Oceanic and Atmospheric Administration) APIs.
+
+Table of Contents
+
+    Introduction
+    Installation
+    Usage
+    Future Plans
+    License
+
+Introduction
+
+The NOAA Weather Dashboard is designed to provide users with real-time weather data and insights using NOAA's extensive range of weather APIs. This Blazor web application aims to offer an intuitive and responsive interface for accessing weather information, including forecasts, alerts, and historical data.
+Features
+
+    Real-time Weather Data: Fetch and display current weather conditions and forecasts.
+    Weather Alerts: Receive and display weather alerts and warnings.
+    Historical Data: Access and visualize historical weather data.
+    Interactive Maps: View weather patterns on interactive maps.
+    
+
+Installation:
+Sample text.
+
+Usage
+Sample text.
+
+Future Plans
+Integrating NOAA APT Signal Demodulator
+
+In a future update, I plan to integrate a NOAA APT (Automatic Picture Transmission) signal demodulator written in C. This feature will allow users to demodulate and display satellite images directly within the Blazor app. 
+
+License
+
+This project is licensed under the MIT License. See the LICENSE file for more details.

@@ -1,0 +1,31 @@
+@page "/decode"
+@* What are these attributes? *@
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+
+<PageTitle>APT Decoder</PageTitle>
+
+<h1>APT Decoder</h1>
+
+@* <p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button> *@
+
+@code {
+    @* private int currentCount = 0;
+
+private void IncrementCount()
+{
+currentCount++;
+} *@
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+    }
+
+    private class Stats2
+    {
+
+    }
+}

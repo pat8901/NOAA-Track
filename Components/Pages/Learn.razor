@@ -1,0 +1,51 @@
+@page "/learn"
+@* This allows for two way binding *@
+@rendermode InteractiveServer
+@* What is this attribute? *@
+@attribute [StreamRendering]
+
+<PageTitle>Learn</PageTitle>
+
+<h1>Learn</h1>
+
+@* One way binding *@
+<h3>@garbage</h3>
+
+@* Two way binding *@
+<input @bind-value="user_message" class="form-control" />
+<h3>@user_message</h3>
+
+@* API request to NOAA *@
+<button @onclick="FetchData">Get NOAA Data</button>
+@if (stats != null)
+{
+    @* <h3>ID: @stats.id</h3>
+<h3>Type: @stats.type</h3> *@
+    <h3>Message: @stats.message</h3>
+}
+else
+{
+    <p>Loading...</p>
+}
+
+@code {
+    public Stats? stats;
+    public HttpClient httpClient = new HttpClient();
+    string garbage = "Hello from inside \"Learn\" component page";
+    string user_message = "default";
+    string noaa_response = "";
+
+    public async Task FetchData()
+    {
+        @* stats = await httpClient.GetFromJsonAsync<Stats>("https://api.weather.gov/zones/public/NMZ208"); *@
+        stats = await httpClient.GetFromJsonAsync<Stats>("https://dummy.restapiexample.com/api/v1/employee/1");
+    }
+
+    public class Stats
+    {
+        @* public string? id { get; set; }
+public string? type { get; set; } *@
+        public string? message { get; set; }
+    }
+
+}
