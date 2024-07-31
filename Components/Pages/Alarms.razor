@@ -1,0 +1,102 @@
+@page "/alarm"
+@using System.Net.Http.Headers
+@using System.Text.Json.Serialization
+@* @using NOAA_Track.Models *@
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+
+<PageTitle>Radar Alarms</PageTitle>
+
+<h1>Radar Alarms</h1>
+
+@* API request to NOAA *@
+<button @onclick="FetchData">Get Alarm Data</button>
+<ul>
+    @if (isLoading)
+    {
+        <li>Loading...</li>
+    }
+    else if (errorMessage != null)
+    {
+        <li>Error: @errorMessage</li>
+    }
+    else
+    {
+        if (data != null)
+        {
+            Console.WriteLine("size of list: " + data.Capacity);
+            @foreach (var item in data)
+            {
+                <li> @item.type: @item.stationId: @item.status: @item.activeChannel: @item.message: @item.timestamp </li>
+            }
+        }
+        if (full_data != null)
+        {
+            <p>@full_data.context.Version</p>
+            <p>@full_data.id</p>
+            @foreach (var item in full_data.Graph)
+            {
+                <li> @item.type: @item.stationId: @item.status: @item.activeChannel: @item.message: @item.timestamp </li>
+            }
+        }
+    }
+</ul>
+
+@code {
+    public HttpClient httpClient = new HttpClient();
+    public ApiResponse full_data;
+    public List<GraphEntry> data;
+    public bool isLoading = true;
+    public string errorMessage;
+
+    public async Task FetchData()
+    {
+        try
+        {
+            Console.WriteLine("Getting...");
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "WebApp");
+            var api_response = await httpClient.GetFromJsonAsync<ApiResponse>("https://api.weather.gov/radar/stations/KMVX/alarms");
+            var full_api_response = await
+            httpClient.GetFromJsonAsync<ApiResponse>("https://api.weather.gov/radar/stations/KMVX/alarms");
+
+            full_data = full_api_response ?? new ApiResponse();
+            data = api_response?.Graph ?? new List<GraphEntry>();
+            Console.WriteLine("Got Response!");
+        }
+        catch (Exception e)
+        {
+            errorMessage = e.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    public class GraphEntry
+    {
+        [JsonPropertyName("@type")]
+        public string type { get; set; }
+        public string stationId { get; set; }
+        public string status { get; set; }
+        public int activeChannel { get; set; }
+        public string message { get; set; }
+        public string timestamp { get; set; }
+    }
+
+    public class ContextItem
+    {
+        [JsonPropertyName("@version")]
+        public string Version { get; set; }
+    }
+
+    public class ApiResponse
+    {
+        [JsonPropertyName("@context")]
+        public ContextItem context { get; set; }
+        [JsonPropertyName("@id")]
+        public string id { get; set; }
+        [JsonPropertyName("@graph")]
+        public List<GraphEntry> Graph { get; set; }
+    }
+}

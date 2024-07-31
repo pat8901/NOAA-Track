@@ -1,6 +1,7 @@
 using NOAA_Track.Components;
 
 var builder = WebApplication.CreateBuilder(args);
+var noaaApiKey = builder.Configuration["NOAA:NCDCApiKey"];
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

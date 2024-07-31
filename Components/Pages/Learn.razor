@@ -1,4 +1,5 @@
 @page "/learn"
+@using System.Net.Http.Headers
 @* This allows for two way binding *@
 @rendermode InteractiveServer
 @* What is this attribute? *@
@@ -17,35 +18,62 @@
 
 @* API request to NOAA *@
 <button @onclick="FetchData">Get NOAA Data</button>
-@if (stats != null)
-{
-    @* <h3>ID: @stats.id</h3>
-<h3>Type: @stats.type</h3> *@
-    <h3>Message: @stats.message</h3>
-}
-else
-{
-    <p>Loading...</p>
-}
+<ul>
+    @if (isLoading)
+    {
+        <li>Loading...</li>
+    }
+    else if (errorMessage != null)
+    {
+        <li>Error: @errorMessage</li>
+    }
+    else
+    {
+        <p>@data[1].Term</p>
+        @* @foreach (var item in data)
+    {
+    <li><strong>@item.Term</strong>: @item.Definition</li>
+    } *@
+    }
+</ul>
 
 @code {
-    public Stats? stats;
     public HttpClient httpClient = new HttpClient();
+    public List<Item> data;
+    public bool isLoading = true;
+    public string errorMessage;
+
     string garbage = "Hello from inside \"Learn\" component page";
     string user_message = "default";
     string noaa_response = "";
 
     public async Task FetchData()
     {
-        @* stats = await httpClient.GetFromJsonAsync<Stats>("https://api.weather.gov/zones/public/NMZ208"); *@
-        stats = await httpClient.GetFromJsonAsync<Stats>("https://dummy.restapiexample.com/api/v1/employee/1");
+        try
+        {
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "WebApp");
+            var apiResponse = await httpClient.GetFromJsonAsync<NoaaApiResponse>("https://api.weather.gov/glossary");
+            // Using ?? will prevent us in needing an if statement in rendering code to check if data contains stuff
+            data = apiResponse?.Glossary ?? new List<Item>();
+        }
+        catch (Exception e)
+        {
+            errorMessage = e.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
-    public class Stats
+    public class Item
     {
-        @* public string? id { get; set; }
-public string? type { get; set; } *@
-        public string? message { get; set; }
+        public string Term { get; set; }
+        public string Definition { get; set; }
     }
 
+    public class NoaaApiResponse
+    {
+        public List<Item> Glossary { get; set; }
+    }
 }
