@@ -1,7 +1,17 @@
+using System.Reflection;
 using NOAA_Track.Components;
+using NOAA_Track.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-var noaaApiKey = builder.Configuration["NOAA:NCDCApiKey"];
+
+// Setting up user secrets via configuration to keep sensitive information safe.
+IConfigurationRoot config = new ConfigurationBuilder().AddUserSecrets(Assembly.GetEntryAssembly()!).Build();
+
+// Adding Api key services. This is an alternative to IConfiguration dependency injection
+// var noaaApiKey = builder.Configuration["NOAA:NCDCApiKey"];
+// var MAP_KEY = builder.Configuration["NOAA:MapApiKey"];
+// builder.Services.AddSingleton(new ApiKeyService(MAP_KEY));
+
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

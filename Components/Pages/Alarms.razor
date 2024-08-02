@@ -2,14 +2,42 @@
 @using System.Net.Http.Headers
 @using System.Text.Json.Serialization
 @using NOAA_Track.Models
+@using System.Reflection
+@inject IConfiguration Configuration
+@* @inject ApiKeyService ApiService *@
 @rendermode InteractiveServer
 @attribute [StreamRendering]
 
 <PageTitle>Radar Alarms</PageTitle>
 
 <h1>Radar Alarms</h1>
-<input @bind-value="location" class="form-control" />
-<p>searching for: @location</p>
+
+@* <input @bind-value="location" class="form-control" @onkeypress="Fetch" />
+<p>searching for: @location</p> *@
+
+@if (isLoadingStations)
+{
+    <p><em>Loading...</em></p>
+}
+else if (errorMessageStations != null)
+{
+    <p><em>Error: @errorMessageStations</em></p>
+}
+else
+{
+    if (station_data != null)
+    {
+        <div id="myDiv" style="height: 200px; overflow-y: auto; border: 1px solid black">
+            @foreach (var item in station_data.features)
+            {
+                <div style="padding: 5px;">
+                    <button style="background-color: white;" @onclick="e => Fetch(item.properties.id)">@item.properties.name
+                        @item.properties.id</button>
+                </div>
+            }
+        </div>
+    }
+}
 
 @if (isLoading)
 {
@@ -21,7 +49,11 @@ else if (errorMessage != null)
 }
 else
 {
-    if (data != null)
+    <iframe width="600" height="450" style="border:0" loading="lazy" allowfullscreen
+        referrerpolicy="no-referrer-when-downgrade" src=@location>
+    </iframe>
+
+    if (alarm_data != null)
     {
         <table class="table">
             <thead>
@@ -32,8 +64,8 @@ else
             </thead>
             <tbody>
                 <tr>
-                    <td>@data.context.Version</td>
-                    <td>@data.id</td>
+                    <td>@alarm_data.context.Version</td>
+                    <td>@alarm_data.id</td>
                 </tr>
             </tbody>
         </table>
@@ -50,7 +82,7 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in data.Graph)
+                @foreach (var item in alarm_data.Graph)
                 {
                     <tr>
                         <td>@item.type</td>
@@ -68,19 +100,35 @@ else
 
 @code {
     public HttpClient httpClient = new HttpClient();
-    public string location = "KMVX";
-    public required ApiResponse data;
+    public string? MAP_KEY;
+    public string? location;
+    public required AlarmApiResponse alarm_data;
     public bool isLoading = true;
+    public bool isLoadingStations = true;
     public required string errorMessage;
+    public required string errorMessageStations;
+
+    @* TODO: Do you need to make sepearte http clients objects for different api calls? *@
+    public HttpClient httpClientStation = new HttpClient();
+    public StationApiResponse station_data;
+    public HttpClient httpClientSingleStation = new HttpClient();
+    public SingleStationApiResponse single_station_data;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
+            MAP_KEY = Configuration["NOAA:MapApiKey"];
+            @* Console.WriteLine($"key from service: {ApiService.API_KEY}"); *@
+            location = $"https://www.google.com/maps/embed/v1/place?key={MAP_KEY}&q=47.52805,-97.32499&zoom=6&maptype=satellite";
             httpClient.DefaultRequestHeaders.Add("User-Agent", "WebApp");
             var api_response = await
-            httpClient.GetFromJsonAsync<ApiResponse>("https://api.weather.gov/radar/stations/KMVX/alarms");
-            data = api_response ?? new ApiResponse() { id = "0.0", Graph = new List<GraphEntry>() };
+            httpClient.GetFromJsonAsync<AlarmApiResponse>("https://api.weather.gov/radar/stations/KMVX/alarms");
+            alarm_data = api_response ?? new AlarmApiResponse() { id = "0.0", Graph = new List<GraphEntry>() };
+            httpClientStation.DefaultRequestHeaders.Add("User-Agent", "WebApp");
+            var station_response = await
+            httpClientStation.GetFromJsonAsync<StationApiResponse>("https://api.weather.gov/radar/stations");
+            station_data = station_response ?? new StationApiResponse();
         }
         catch (Exception e)
         {
@@ -89,6 +137,35 @@ else
         finally
         {
             isLoading = false;
+            isLoadingStations = false;
+        }
+    }
+
+    @* TODO: Add limits to the amount of items inside list *@
+    @* TODO: Will all entries print out if I don't limit? *@
+    @* TODO: Add timeout error if request takes too long? *@
+    public async Task Fetch(string id)
+    {
+        Console.WriteLine("Pressed " + id + "!");
+        try
+        {
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "WebApp");
+            var api_response = await
+            httpClient.GetFromJsonAsync<AlarmApiResponse>("https://api.weather.gov/radar/stations/" + id + "/alarms");
+            alarm_data = api_response ?? new AlarmApiResponse() { id = "0.0", Graph = new List<GraphEntry>() };
+
+            httpClientSingleStation.DefaultRequestHeaders.Add("User-Agent", "WebApp");
+            var single_station_response = await
+            httpClientSingleStation.GetFromJsonAsync<SingleStationApiResponse>("https://api.weather.gov/radar/stations/" + id + "");
+            single_station_data = single_station_response ?? new SingleStationApiResponse();
+            double longitude = single_station_data.geometry.coordinates[0];
+            double latitude = single_station_data.geometry.coordinates[1];
+            location =
+            $"https://www.google.com/maps/embed/v1/place?key={MAP_KEY}&q={latitude},{longitude}&zoom=6&maptype=satellite";
+        }
+        catch (Exception ex)
+        {
+            errorMessageStations = ex.Message;
         }
     }
 }

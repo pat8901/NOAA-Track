@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace NOAA_Track.Models
 {
-    public class ApiResponse
+    public class AlarmApiResponse
     {
         [JsonPropertyName("@context")]
         public ContextItem context { get; set; }
