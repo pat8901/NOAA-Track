@@ -1,6 +1,9 @@
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using NOAA_Track.Components;
+using NOAA_Track.Database;
 using NOAA_Track.Models;
+using NOAA_Track.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +15,6 @@ IConfigurationRoot config = new ConfigurationBuilder().AddUserSecrets(Assembly.G
 // var MAP_KEY = builder.Configuration["NOAA:MapApiKey"];
 // builder.Services.AddSingleton(new ApiKeyService(MAP_KEY));
 
-
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -20,6 +22,17 @@ builder.Services.AddRazorComponents()
 // Adding HTTP Client for server-side rendering (SSR)
 builder.Services.AddHttpClient();
 
+// Adding SQL Server service to application. Allows for injection.
+var connection_string = builder.Configuration["NoaaDatabase:ConnectString"];
+builder.Services.AddDbContextFactory<SatelliteContext>(options =>
+    options.UseSqlServer(connection_string));
+
+// Adding database middleware service. Handles communication between database and backend.
+//builder.Services.AddSingleton<SatelliteService>();
+// If I wanted more than one instance
+builder.Services.AddTransient<SatelliteService>();
+
+// Application is built
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

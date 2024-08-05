@@ -1,0 +1,168 @@
+@page "/database"
+@using NOAA_Track.Models
+@using NOAA_Track.Database
+@using NOAA_Track.Services
+@inject SatelliteService satellite_service
+@rendermode InteractiveServer
+
+
+<PageTitle>Satellite</PageTitle>
+<h1>Satellite Database</h1>
+
+@if (add_input)
+{
+    <p><em>Adding...</em></p>
+}
+else if (del_input)
+{
+    <p><em>Deleting...</em></p>
+}
+else if (input_error != null)
+{
+    <p>@input_error</p>
+}
+else
+{
+    <EditForm Model=@satellite OnValidSubmit="HandleSubmit">
+        <label for="NameInput">Name</label>
+        <InputText id="NameInput" @bind-Value="@satellite.Name"></InputText>
+        <button type="submit" class="btn-primary">Add</button>
+    </EditForm>
+
+    <EditForm Model=@satellite OnValidSubmit="HandleDelete">
+        <label for="NameInputDelete">Name</label>
+        <InputText id="NameInputDelete" @bind-Value="@delete_name"></InputText>
+        <button type="submit" class="btn-primary">Delete</button>
+    </EditForm>
+
+    @* <EditForm Model=@satellite OnValidSubmit="HandleSubmit">
+<label for="NameInput">Name</label>
+<InputText id="NameInput" @bind-Value="@satellite.Name"></InputText>
+<button type="submit" class="btn-primary">Add</button>
+</EditForm> *@
+}
+
+@if (update_table)
+{
+    <p>updating...</p>
+}
+else if (database_list_error != null)
+{
+    <p>@database_list_error</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Launch Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in satellite_list)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                    <td>@item.LaunchDate</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    Satellite satellite = new Satellite();
+    string delete_name;
+    bool add_input = false;
+    bool del_input = false;
+    bool update_table = true;
+    List<Satellite> satellite_list = new List<Satellite>();
+    public string input_error;
+    public string database_list_error;
+
+    // TODO: Check for duplicates
+    public async Task HandleSubmit(EditContext editContext)
+    {
+        try
+        {
+            add_input = true;
+            var new_satellite = (Satellite)editContext.Model;
+            if (new_satellite.Name == null)
+            {
+                Console.WriteLine("Name can not be null!");
+                await Task.Delay(1000);
+                add_input = false;
+                return;
+            }
+            new_satellite.LaunchDate = DateTime.Now;
+            new_satellite.Id = 0; // fixes my bug, but need to learn more about the EditContext
+            await satellite_service.AddSatellite(new_satellite);
+        }
+        catch (Exception e)
+        {
+            input_error = e.Message;
+        }
+        finally
+        {
+            await PopulateSatelliteTable();
+            await Task.Delay(1000);
+            satellite.Name = "";
+            add_input = false;
+        }
+    }
+
+    public async Task HandleDelete()
+    {
+        try
+        {
+            del_input = true;
+            await satellite_service.DeleteSatellite(delete_name);
+        }
+        catch (Exception e)
+        {
+            input_error = e.Message;
+        }
+        finally
+        {
+            await PopulateSatelliteTable();
+            await Task.Delay(1000);
+            delete_name = "";
+            del_input = false;
+        }
+    }
+
+    public async Task PopulateSatelliteTable()
+    {
+        try
+        {
+            satellite_list = await satellite_service.GetSatellites();
+        }
+        catch (Exception e)
+        {
+            database_list_error = e.Message;
+        }
+        finally
+        {
+
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            satellite_list = await satellite_service.GetSatellites();
+        }
+        catch (Exception e)
+        {
+            database_list_error = e.Message;
+        }
+        finally
+        {
+            update_table = false;
+        }
+    }
+}

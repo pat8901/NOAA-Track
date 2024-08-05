@@ -2,3 +2,5 @@ obj
 bin
 NOAA-Track.sln
 NOAA-Track.csproj
+Migrations
+.vscode
