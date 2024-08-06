@@ -1,0 +1,77 @@
+@page "/noaaweather"
+@using System.Net.Http.Headers
+@using NOAA_Track.Models
+@attribute [StreamRendering]
+
+<PageTitle>Weather Database</PageTitle>
+
+@if (is_loading)
+{
+    <p><em>Loading...</em></p>
+}
+else if (error != null)
+{
+    <p><em>Error!</em></p>
+}
+else
+{
+    if (data == null)
+    {
+        <p><em>No data found</em></p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Raw Message</th>
+                    <th>Text Description</th>
+                    <th>Temperature</th>
+                    <th>Wind Speed</th>
+                    <th>Barometric Pressure</th>
+                    <th>Relative Humidity</th>
+                    <th>Heat Index</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>@data.properties.timestamp</td>
+                    <td>@data.properties.rawMessage</td>
+                    <td>@data.properties.textDescription</td>
+                    <td>@data.properties.temperature.value @data.properties.temperature.unitCode</td>
+                    <td>@data.properties.windSpeed.value @data.properties.windSpeed.unitCode</td>
+                    <td>@data.properties.barometricPressure.value @data.properties.barometricPressure.unitCode</td>
+                    <td>@data.properties.relativeHumidity.value @data.properties.relativeHumidity.unitCode</td>
+                    <td>@data.properties.heatIndex.value @data.properties.heatIndex.unitCode</td>
+                </tr>
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    public bool is_loading = false;
+    public string error;
+    public required string stationID = "KLOT";
+    public HttpClient client = new HttpClient();
+    public LatestObservationResponse? data;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            //await Task.Delay(500);
+            client.DefaultRequestHeaders.Add("User-Agent", "WebApp");
+            var response = await
+            client.GetFromJsonAsync<LatestObservationResponse>($"https://api.weather.gov/stations/{stationID}/observations/latest");
+            data = response ?? new LatestObservationResponse();
+            // TODO: Add response to database if it doesnt already exist
+            Console.WriteLine($"\"{data.properties.timestamp}\"");
+        }
+        catch (Exception e)
+        {
+            error = e.Message;
+        }
+    }
+}
