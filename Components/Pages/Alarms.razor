@@ -102,9 +102,10 @@ else
 
 @code {
     public HttpClient httpClient = new HttpClient();
+    public required AlarmApiResponse alarm_data;
     public string? MAP_KEY;
     public string? location;
-    public required AlarmApiResponse alarm_data;
+
     public bool isLoading = true;
     public bool isLoadingStations = true;
     public required string errorMessage;
@@ -113,6 +114,7 @@ else
     @* TODO: Do you need to make sepearte http clients objects for different api calls? *@
     public HttpClient httpClientStation = new HttpClient();
     public StationApiResponse station_data;
+
     public HttpClient httpClientSingleStation = new HttpClient();
     public SingleStationApiResponse single_station_data;
 

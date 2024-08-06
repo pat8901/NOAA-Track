@@ -22,10 +22,16 @@ builder.Services.AddRazorComponents()
 // Adding HTTP Client for server-side rendering (SSR)
 builder.Services.AddHttpClient();
 
-// Adding SQL Server service to application. Allows for injection.
+// Adding Satellite SQL Server DB service to application. Allows for injection.
 var connection_string = builder.Configuration["NoaaDatabase:ConnectString"];
 builder.Services.AddDbContextFactory<SatelliteContext>(options =>
     options.UseSqlServer(connection_string));
+
+// Adding Weather SQL Server DB service to application.
+// This doesn't work. Can only be one DbContext?
+var weather_connection_string = builder.Configuration["WeatherDataBase:ConnectString"];
+builder.Services.AddDbContextFactory<WeatherContext>(options =>
+    options.UseSqlServer(weather_connection_string));
 
 // Adding database middleware service. Handles communication between database and backend.
 //builder.Services.AddSingleton<SatelliteService>();
