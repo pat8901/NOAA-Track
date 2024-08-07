@@ -8,10 +8,6 @@
 <PageTitle>Learn</PageTitle>
 
 <h1>Learn</h1>
-
-@* One way binding *@
-<h3>@garbage</h3>
-
 @* Two way binding *@
 <input @bind-value="user_message" class="form-control" />
 <h3>@user_message</h3>
@@ -42,8 +38,6 @@
     public List<Item> data;
     public bool isLoading = true;
     public string errorMessage;
-
-    string garbage = "Hello from inside \"Learn\" component page";
     string user_message = "default";
     string noaa_response = "";
 

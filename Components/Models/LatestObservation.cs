@@ -28,30 +28,30 @@ namespace NOAA_Track.Models
     public class LatestObservationPropertiesTemperature
     {
         public string? unitCode { get; set; }
-        public int value { get; set; }
+        public int? value { get; set; }
     }
 
     public class LatestObservationPropertiesWindSpeed
     {
         public string? unitCode { get; set; }
-        public double value { get; set; }
+        public double? value { get; set; }
     }
 
     public class LatestObservationPropertiesBarometricPressure
     {
         public string? unitCode { get; set; }
-        public int value { get; set; }
+        public int? value { get; set; }
     }
 
     public class LatestObservationPropertiesRelativeHumidity
     {
         public string? unitCode { get; set; }
-        public double value { get; set; }
+        public double? value { get; set; }
     }
 
     public class LatestObservationPropertiesHeatIndex
     {
         public string? unitCode { get; set; }
-        public double value { get; set; }
+        public double? value { get; set; }
     }
 }

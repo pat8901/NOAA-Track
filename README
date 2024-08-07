@@ -28,6 +28,10 @@ run:
     dotnet ef migrations add InitialCreate
     dotnet ef database update
 
+    If you have multiple DbContext
+    dotnet ef migrations add 'migration_name' --context 'context_name' -o Migrations/'folder_name'
+    dotnet ef database update --context 'context_name'
+
 Usage
 Sample text.
 
@@ -44,3 +48,4 @@ TODO:
 database to keep historical weather stats
 Oauth
 cleaner homepage
+create internal api for internal db

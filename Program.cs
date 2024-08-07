@@ -37,6 +37,7 @@ builder.Services.AddDbContextFactory<WeatherContext>(options =>
 //builder.Services.AddSingleton<SatelliteService>();
 // If I wanted more than one instance
 builder.Services.AddTransient<SatelliteService>();
+builder.Services.AddTransient<WeatherService>();
 
 // Application is built
 var app = builder.Build();

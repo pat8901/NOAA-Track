@@ -12,11 +12,24 @@ namespace NOAA_Track.Services
             _dbContextFactory = dbContextFactory;
         }
 
-        public async Task AddWeatherEntry()
+        public async Task AddWeatherEntry(Weather observation)
         {
             using var context = _dbContextFactory.CreateDbContext();
-            //await context.
-            await Task.Delay(500);
+            await context.Observations.AddAsync(observation);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task<Weather?> CheckWeatherExist(string search_string)
+        {
+            using var context = _dbContextFactory.CreateDbContext();
+            var observation = await context.Observations.SingleOrDefaultAsync(x => x.timestamp == search_string);
+            return observation;
+        }
+
+        public async Task<List<Weather>> GetObservations()
+        {
+            using var context = _dbContextFactory.CreateDbContext();
+            return await context.Observations.ToListAsync();
         }
     }
 }
