@@ -1,17 +1,21 @@
 @page "/noaaweather"
 @using System.Net.Http.Headers
 @using NOAA_Track.Models
+@using NOAA_Track.Database
+@using NOAA_Track.Services
+@inject WeatherService weather_service
 @attribute [StreamRendering]
 
 <PageTitle>Weather Database</PageTitle>
 
+<h3>Current</h3>
 @if (is_loading)
 {
     <p><em>Loading...</em></p>
 }
 else if (error != null)
 {
-    <p><em>Error!</em></p>
+    <p><em>@error</em></p>
 }
 else
 {
@@ -39,23 +43,116 @@ else
                     <td>@data.properties.timestamp</td>
                     <td>@data.properties.rawMessage</td>
                     <td>@data.properties.textDescription</td>
-                    <td>@data.properties.temperature.value @data.properties.temperature.unitCode</td>
-                    <td>@data.properties.windSpeed.value @data.properties.windSpeed.unitCode</td>
-                    <td>@data.properties.barometricPressure.value @data.properties.barometricPressure.unitCode</td>
-                    <td>@data.properties.relativeHumidity.value @data.properties.relativeHumidity.unitCode</td>
-                    <td>@data.properties.heatIndex.value @data.properties.heatIndex.unitCode</td>
+                    <td>
+                        @data.properties.temperature.value
+                        @if (data.properties.temperature.unitCode != null)
+                        {
+                            @space @data.properties.temperature.unitCode[11]
+                        }
+                    </td>
+                    <td>
+                        @if (data.properties.windSpeed.value == null)
+                        {
+                            <span>null</span>
+                        }
+                        else
+                        {
+                            @data.properties.windSpeed.value
+                        }
+                        @if (data.properties.windSpeed.unitCode != null)
+                        {
+                            @space @data.properties.windSpeed.unitCode.Substring(8, 4)
+                        }
+                    </td>
+                    <td>
+                        @data.properties.barometricPressure.value
+                        @if (data.properties.barometricPressure.unitCode != null)
+                        {
+                            <span>@space @data.properties.barometricPressure.unitCode.Substring(8, 2)</span>
+                        }
+                    </td>
+                    <td>
+                        @data.properties.relativeHumidity.value
+                        @if (data.properties.relativeHumidity.unitCode == "wmoUnit:percent")
+                        {
+                            <span> %</span>
+                        }
+                    </td>
+                    <td>
+                        @if (data.properties.heatIndex.value == null)
+                        {
+                            <span>null</span>
+                        }
+                        else
+                        {
+                            @data.properties.heatIndex.value
+                        }
+                        @if (data.properties.heatIndex.unitCode != null)
+                        {
+                            @space @data.properties.heatIndex.unitCode[11]
+                        }
+                    </td>
                 </tr>
             </tbody>
         </table>
     }
 }
 
+<h3>History</h3>
+@if (loading_database)
+{
+    <p><em>Loading database...</em></p>
+}
+else if (database_error != null)
+{
+    <p><em>@database_error</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Raw Message</th>
+                <th>Text Description</th>
+                <th>Temperature</th>
+                <th>Wind Speed</th>
+                <th>Barometric Pressure</th>
+                <th>Relative Humidity</th>
+                <th>Heat Index</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in observations)
+            {
+                <tr>
+                    <td>@item.timestamp</td>
+                    <td>@item.rawMessage</td>
+                    <td>@item.textDescription</td>
+                    <td>@item.temperature</td>
+                    <td>@item.windSpeed</td>
+                    <td>@item.barometricPressure</td>
+                    <td>@item.relativeHumidity</td>
+                    <td>@item.heatIndex</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
 @code {
-    public bool is_loading = false;
-    public string error;
-    public required string stationID = "KLOT";
     public HttpClient client = new HttpClient();
     public LatestObservationResponse? data;
+    public List<Weather> observations = new List<Weather>();
+    public required string stationID = "KLOT";
+
+    public bool is_loading = true;
+    public bool loading_database = true;
+
+    public string? error;
+    public string? database_error;
+
+    public string space = " ";
 
     protected override async Task OnInitializedAsync()
     {
@@ -66,12 +163,55 @@ else
             var response = await
             client.GetFromJsonAsync<LatestObservationResponse>($"https://api.weather.gov/stations/{stationID}/observations/latest");
             data = response ?? new LatestObservationResponse();
-            // TODO: Add response to database if it doesnt already exist
-            Console.WriteLine($"\"{data.properties.timestamp}\"");
+
+            string search_string = data.properties.timestamp;
+            Weather? search_result = await weather_service.CheckWeatherExist(search_string);
+            if (search_result == null) // if not-found. add to db
+            {
+                Weather weather = CreateWeatherObject(data);
+                await weather_service.AddWeatherEntry(weather);
+            }
+            else // ignore
+            {
+                Console.WriteLine("Ignore, do not add!");
+            }
         }
         catch (Exception e)
         {
             error = e.Message;
         }
+        finally
+        {
+            is_loading = false;
+        }
+
+        try
+        {
+            observations = await weather_service.GetObservations();
+        }
+        catch (Exception x)
+        {
+            database_error = x.Message;
+        }
+        finally
+        {
+            loading_database = false;
+        }
+    }
+
+    public Weather CreateWeatherObject(LatestObservationResponse data)
+    {
+        Weather weather = new Weather();
+        weather.Id = 0;
+        weather.insertionTime = DateTime.Now;
+        weather.timestamp = data.properties.timestamp;
+        weather.rawMessage = data.properties.rawMessage;
+        weather.textDescription = data.properties.textDescription;
+        weather.temperature = data.properties.temperature.value;
+        weather.windSpeed = data.properties.windSpeed.value;
+        weather.barometricPressure = data.properties.barometricPressure.value;
+        weather.relativeHumidity = data.properties.relativeHumidity.value;
+        weather.heatIndex = data.properties.heatIndex.value;
+        return weather;
     }
 }

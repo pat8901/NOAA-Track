@@ -7,7 +7,7 @@ namespace NOAA_Track.Database
     {
         public DbSet<Weather> Observations { get; set; }
 
-        public WeatherContext(DbContextOptions options) : base(options)
+        public WeatherContext(DbContextOptions<WeatherContext> options) : base(options)
         {
         }
     }
