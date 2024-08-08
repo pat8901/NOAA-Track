@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NOAA_Track.Components;
 using NOAA_Track.Database;
@@ -8,7 +9,10 @@ using NOAA_Track.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Setting up user secrets via configuration to keep sensitive information safe.
-IConfigurationRoot config = new ConfigurationBuilder().AddUserSecrets(Assembly.GetEntryAssembly()!).Build();
+IConfigurationRoot config = new ConfigurationBuilder()
+.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+.AddUserSecrets(Assembly.GetEntryAssembly()!)
+.Build();
 
 // Adding Api key services. This is an alternative to IConfiguration dependency injection
 // var noaaApiKey = builder.Configuration["NOAA:NCDCApiKey"];
@@ -22,16 +26,21 @@ builder.Services.AddRazorComponents()
 // Adding HTTP Client for server-side rendering (SSR)
 builder.Services.AddHttpClient();
 
-// Adding Satellite SQL Server DB service to application. Allows for injection.
+// Adding Satellite SQL Server DB service to application
 var connection_string = builder.Configuration["NoaaDatabase:ConnectString"];
 builder.Services.AddDbContextFactory<SatelliteContext>(options =>
     options.UseSqlServer(connection_string));
 
-// Adding Weather SQL Server DB service to application.
-// This doesn't work. Can only be one DbContext?
+// Adding Weather SQL Server DB service to application
 var weather_connection_string = builder.Configuration["WeatherDataBase:ConnectString"];
 builder.Services.AddDbContextFactory<WeatherContext>(options =>
     options.UseSqlServer(weather_connection_string));
+
+// Adding Users SQL Server DB service for user authentication
+var users_connection_string = builder.Configuration["UsersDataBase:ConnectString"];
+builder.Services.AddDbContext<UsersContext>(options => options.UseSqlServer(users_connection_string));
+builder.Services.AddAuthorization();
+builder.Services.AddIdentityApiEndpoints<IdentityUser>().AddEntityFrameworkStores<UsersContext>();
 
 // Adding database middleware service. Handles communication between database and backend.
 //builder.Services.AddSingleton<SatelliteService>();
@@ -39,7 +48,7 @@ builder.Services.AddDbContextFactory<WeatherContext>(options =>
 builder.Services.AddTransient<SatelliteService>();
 builder.Services.AddTransient<WeatherService>();
 
-// Application is built
+// Build Web Application
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -50,13 +59,16 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-// TODO: What does this do?
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
+
+app.MapIdentityApi<IdentityUser>();
 
 app.UseStaticFiles();
+
 app.UseAntiforgery();
 
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
+
+app.MapGet("/hi", () => "Hello!");
 
 app.Run();

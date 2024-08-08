@@ -43,9 +43,3 @@ In a future update, I plan to integrate a NOAA APT (Automatic Picture Transmissi
 License
 
 This project is licensed under the MIT License. See the LICENSE file for more details.
-
-TODO:
-database to keep historical weather stats
-Oauth
-cleaner homepage
-create internal api for internal db
