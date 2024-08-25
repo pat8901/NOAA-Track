@@ -75,6 +75,7 @@ else
 
 @code {
     Satellite satellite = new Satellite();
+    HttpClient client = new HttpClient();
     string delete_name;
     bool add_input = false;
     bool del_input = false;
@@ -90,16 +91,8 @@ else
         {
             add_input = true;
             var new_satellite = (Satellite)editContext.Model;
-            if (new_satellite.Name == null)
-            {
-                Console.WriteLine("Name can not be null!");
-                await Task.Delay(1000);
-                add_input = false;
-                return;
-            }
             new_satellite.LaunchDate = DateTime.Now;
-            new_satellite.Id = 0; // fixes my bug, but need to learn more about the EditContext
-            await satellite_service.AddSatellite(new_satellite);
+            var response = await client.PostAsJsonAsync<Satellite>("http://localhost:5206/satellite", new_satellite);
         }
         catch (Exception e)
         {
@@ -108,7 +101,6 @@ else
         finally
         {
             await PopulateSatelliteTable();
-            await Task.Delay(1000);
             satellite.Name = "";
             add_input = false;
         }
@@ -119,7 +111,7 @@ else
         try
         {
             del_input = true;
-            await satellite_service.DeleteSatellite(delete_name);
+            var response = await client.DeleteAsync($"http://localhost:5206/satellite/{delete_name}");
         }
         catch (Exception e)
         {
@@ -128,7 +120,6 @@ else
         finally
         {
             await PopulateSatelliteTable();
-            await Task.Delay(1000);
             delete_name = "";
             del_input = false;
         }

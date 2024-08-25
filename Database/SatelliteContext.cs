@@ -26,8 +26,6 @@ namespace NOAA_Track.Database
     {
         public DbSet<Satellite> Satellites { get; set; }
 
-        public SatelliteContext(DbContextOptions<SatelliteContext> options) : base(options)
-        {
-        }
+        public SatelliteContext(DbContextOptions<SatelliteContext> options) : base(options) { }
     }
 }

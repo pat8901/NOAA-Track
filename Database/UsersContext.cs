@@ -6,9 +6,6 @@ namespace NOAA_Track.Database
 
     public class UsersContext : IdentityDbContext
     {
-        public UsersContext(DbContextOptions<UsersContext> options) : base(options)
-        {
-
-        }
+        public UsersContext(DbContextOptions<UsersContext> options) : base(options) { }
     }
 }

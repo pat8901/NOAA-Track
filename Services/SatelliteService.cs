@@ -54,7 +54,6 @@ namespace NOAA_Track.Services
             context.SaveChanges();
         }
 
-        // Something is wrong with my delete op, i.e. auto-increment.
         public async Task DeleteSatellite(string name)
         {
             using var context = _dbContextFactory.CreateDbContext();
