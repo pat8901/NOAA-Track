@@ -1,0 +1,64 @@
+@page "/satellite/add"
+@using NOAA_Track.Models
+@using NOAA_Track.Database
+@using NOAA_Track.Services
+@rendermode InteractiveServer
+
+@* TODO: What would happen if I had a satellite named add.
+How would Blazor handle this?
+*@
+
+<PageTitle>Satellite Add</PageTitle>
+<h1>Add New Satellite</h1>
+
+@if (true)
+{
+    <EditForm Model=@satellite OnValidSubmit="HandleSubmit">
+        <label for="NameInput">Name</label>
+        <InputText id="NameInput" @bind-Value="@satellite.Name"></InputText>
+        <button type="submit" class="btn-primary">Add</button>
+    </EditForm>
+}
+
+@code {
+    Satellite satellite = new Satellite();
+    HttpClient client = new HttpClient();
+    bool add_input = false;
+    public string? error_input;
+
+    // TODO: Check for duplicates
+    // TODO: Popup message letting the user know if the entry was added successfully
+    public async Task HandleSubmit(EditContext editContext)
+    {
+        try
+        {
+            add_input = true;
+            var new_satellite = (Satellite)editContext.Model;
+            new_satellite.LaunchDate = DateTime.Now;
+            // TODO: Set up production level endpoints
+            var response = await client.PostAsJsonAsync<Satellite>("http://localhost:3000/satellite", new_satellite);
+        }
+        catch (Exception e)
+        {
+            error_input = e.Message;
+        }
+        finally
+        {
+            satellite.Name = "";
+            add_input = false;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+        }
+        catch (Exception e)
+        {
+        }
+        finally
+        {
+        }
+    }
+}

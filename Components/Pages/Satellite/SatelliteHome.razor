@@ -1,0 +1,119 @@
+@page "/satellite"
+@using NOAA_Track.Models
+@using NOAA_Track.Database
+@using NOAA_Track.Services
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+
+<PageTitle>Satellite</PageTitle>
+<h1>Satellite</h1>
+
+<button class="btn-primary" onclick="@NavigationHandlerAdd">Add Satellite</button>
+
+@if (update_table)
+{
+    <p>updating...</p>
+}
+else if (error_db != null)
+{
+    <p>@error_db</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Launch Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in satellite_list)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                    <td>@item.LaunchDate</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    Satellite satellite = new Satellite();
+    HttpClient client = new HttpClient();
+    List<Satellite> satellite_list = new List<Satellite>();
+
+    public string? delete_name;
+    bool del_input = false;
+    bool update_table = true;
+    public string? error_db;
+    public string? error_delete;
+
+    public void NavigationHandlerAdd()
+    {
+        NavigationManager.NavigateTo("satellite/add");
+    }
+
+    @* public async Task HandleDelete()
+{
+try
+{
+del_input = true;
+// TODO: Set up production level endpoints
+var response = await client.DeleteAsync($"http://localhost:3000/satellite/{delete_name}");
+}
+catch (Exception e)
+{
+error_delete = e.Message;
+}
+finally
+{
+await PopulateSatelliteTable();
+delete_name = "";
+del_input = false;
+}
+} *@
+
+    public async Task PopulateSatelliteTable()
+    {
+        try
+        {
+            satellite_list = await client.GetFromJsonAsync<List<Satellite>>("http://localhost:3000/satellite");
+        }
+        catch (Exception e)
+        {
+            error_db = e.Message;
+        }
+        finally
+        {
+
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await client.GetFromJsonAsync<List<Satellite>>("http://localhost:3000/satellite");
+            if (response is null)
+            {
+                response = new List<Satellite>();
+            }
+            else
+            {
+                satellite_list = response;
+            }
+        }
+        catch (Exception e)
+        {
+            error_db = e.Message;
+        }
+        finally
+        {
+            update_table = false;
+        }
+    }
+}

@@ -3,4 +3,11 @@
         <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
+    @* This is where you can put 404 errors *@
+    <NotFound>
+        <PageTitle>Not Found</PageTitle>
+        <LayoutView Layout="typeof(Layout.MainLayout)">
+            <p role="alert">Sorry, there is nothing at this address.</p>
+        </LayoutView>
+    </NotFound>
 </Router>
