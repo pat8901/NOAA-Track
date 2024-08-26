@@ -1,0 +1,81 @@
+@page "/satellite/{id}"
+@using NOAA_Track.Models
+@using NOAA_Track.Database
+@using NOAA_Track.Services
+@rendermode InteractiveServer
+
+
+<PageTitle>Satellite Entry</PageTitle>
+<h1>Satellite @id</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Launch Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>@satellite.Id</td>
+            <td>@satellite.Name</td>
+            <td>@satellite.LaunchDate</td>
+            <button class="btn-primary" onclick="@SatelliteDelete">delete</button>
+        </tr>
+    </tbody>
+</table>
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+    HttpClient client = new HttpClient();
+    Satellite satellite = new Satellite();
+
+    public string? error_database;
+    public string? error_delete;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await client.GetFromJsonAsync<Satellite>($"http://localhost:3000/satellite/{id}");
+            if (response is null)
+            {
+                response = new Satellite();
+            }
+            else
+            {
+                satellite = response;
+            }
+        }
+        catch (Exception e)
+        {
+            error_database = e.Message;
+        }
+        finally
+        {
+        }
+    }
+
+    public async Task SatelliteDelete()
+    {
+        try
+        {
+            // TODO: Set up production level endpoints
+            int id = satellite.Id;
+            Console.WriteLine($"id {id}");
+            var response = await client.DeleteAsync($"http://localhost:3000/satellite/{id}");
+            Console.WriteLine($"response: {response}");
+
+        }
+        catch (Exception e)
+        {
+            error_delete = e.Message;
+        }
+        finally
+        {
+            // navigate back to satellite home page
+        }
+    }
+}

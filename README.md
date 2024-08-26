@@ -29,13 +29,9 @@ run:
 ## Usage
 Sample text.
 
-
 ## TODO
-    1. Integrating NOAA-APT (Automatic Picture Transmission demodulator in C) into .Net webapp 
-
-    2. Add error handling for the various api endpoint return codes 
-
+* Integrating NOAA-APT (Automatic Picture Transmission demodulator in C) into .Net webapp 
+* Add error handling for the various api endpoint return codes 
 
 ## License
-
 This project is licensed under the GPLv3 License. See the LICENSE file for more details.
