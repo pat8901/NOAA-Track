@@ -46,36 +46,13 @@ else
     HttpClient client = new HttpClient();
     List<Satellite> satellite_list = new List<Satellite>();
 
-    public string? delete_name;
-    bool del_input = false;
     bool update_table = true;
     public string? error_db;
-    public string? error_delete;
 
     public void NavigationHandlerAdd()
     {
         NavigationManager.NavigateTo("satellite/add");
     }
-
-    @* public async Task HandleDelete()
-{
-try
-{
-del_input = true;
-// TODO: Set up production level endpoints
-var response = await client.DeleteAsync($"http://localhost:3000/satellite/{delete_name}");
-}
-catch (Exception e)
-{
-error_delete = e.Message;
-}
-finally
-{
-await PopulateSatelliteTable();
-delete_name = "";
-del_input = false;
-}
-} *@
 
     public async Task PopulateSatelliteTable()
     {

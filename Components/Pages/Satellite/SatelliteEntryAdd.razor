@@ -3,6 +3,7 @@
 @using NOAA_Track.Database
 @using NOAA_Track.Services
 @rendermode InteractiveServer
+@inject NavigationManager NavigationManager
 
 @* TODO: What would happen if I had a satellite named add.
 How would Blazor handle this?
@@ -33,10 +34,12 @@ How would Blazor handle this?
         try
         {
             add_input = true;
+
             var new_satellite = (Satellite)editContext.Model;
             new_satellite.LaunchDate = DateTime.Now;
             // TODO: Set up production level endpoints
-            var response = await client.PostAsJsonAsync<Satellite>("http://localhost:3000/satellite", new_satellite);
+            var response = await client.PostAsJsonAsync<Satellite>($"http://localhost:3000/satellite/add?name={new_satellite.Name}",
+            new_satellite);
         }
         catch (Exception e)
         {
@@ -44,8 +47,7 @@ How would Blazor handle this?
         }
         finally
         {
-            satellite.Name = "";
-            add_input = false;
+            NavigationManager.NavigateTo("satellite");
         }
     }
 
