@@ -5,17 +5,12 @@
 @using NOAA_Track.Database
 @using System.Reflection
 @inject IConfiguration Configuration
-@* @inject ApiKeyService ApiService *@
-@inject SatelliteContext context
 @rendermode InteractiveServer
 @attribute [StreamRendering]
 
 <PageTitle>Radar Alarms</PageTitle>
 
 <h1>Radar Alarms</h1>
-
-@* <input @bind-value="location" class="form-control" @onkeypress="Fetch" />
-<p>searching for: @location</p> *@
 
 @if (isLoadingStations)
 {

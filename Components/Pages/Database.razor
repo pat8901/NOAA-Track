@@ -2,7 +2,6 @@
 @using NOAA_Track.Models
 @using NOAA_Track.Database
 @using NOAA_Track.Services
-@inject SatelliteService satellite_service
 @rendermode InteractiveServer
 
 
@@ -92,7 +91,8 @@ else
             add_input = true;
             var new_satellite = (Satellite)editContext.Model;
             new_satellite.LaunchDate = DateTime.Now;
-            var response = await client.PostAsJsonAsync<Satellite>("http://localhost:5206/satellite", new_satellite);
+            // TODO: Set up production level endpoints
+            var response = await client.PostAsJsonAsync<Satellite>("http://localhost:3000/satellite", new_satellite);
         }
         catch (Exception e)
         {
@@ -111,7 +111,8 @@ else
         try
         {
             del_input = true;
-            var response = await client.DeleteAsync($"http://localhost:5206/satellite/{delete_name}");
+            // TODO: Set up production level endpoints
+            var response = await client.DeleteAsync($"http://localhost:3000/satellite/{delete_name}");
         }
         catch (Exception e)
         {
@@ -129,7 +130,7 @@ else
     {
         try
         {
-            satellite_list = await satellite_service.GetSatellites();
+            satellite_list = await client.GetFromJsonAsync<List<Satellite>>("http://localhost:3000/satellite");
         }
         catch (Exception e)
         {
@@ -145,7 +146,15 @@ else
     {
         try
         {
-            satellite_list = await satellite_service.GetSatellites();
+            var response = await client.GetFromJsonAsync<List<Satellite>>("http://localhost:3000/satellite");
+            if (response is null)
+            {
+                response = new List<Satellite>();
+            }
+            else
+            {
+                satellite_list = response;
+            }
         }
         catch (Exception e)
         {

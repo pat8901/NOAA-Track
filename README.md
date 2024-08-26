@@ -2,13 +2,6 @@
 
 Welcome to the NOAA Weather Dashboard! This application is built using Blazor Server and provides an interactive interface for displaying weather data from various NOAA (National Oceanic and Atmospheric Administration) APIs.
 
-## Table of Contents
-
-    Introduction
-    Installation
-    Usage
-    Future Plans
-    License
 
 ## Introduction
 
@@ -32,14 +25,17 @@ run:
     dotnet ef migrations add 'migration_name' --context 'context_name' -o Migrations/'folder_name'
     dotnet ef database update --context 'context_name'
 
+
 ## Usage
 Sample text.
 
-## Future Plans
-    Integrating NOAA APT Signal Demodulator
 
-    In a future update, I plan to integrate a NOAA APT (Automatic Picture Transmission) signal demodulator written in C. This feature will allow users to demodulate and display satellite images directly within the Blazor app. 
+## TODO
+    1. Integrating NOAA-APT (Automatic Picture Transmission demodulator in C) into .Net webapp 
+
+    2. Add error handling for the various api endpoint return codes 
+
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for more details.
+This project is licensed under the GPLv3 License. See the LICENSE file for more details.
