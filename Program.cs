@@ -26,11 +26,6 @@ builder.Services.AddRazorComponents()
 // Adding HTTP Client for server-side rendering (SSR)
 builder.Services.AddHttpClient();
 
-// Adding Satellite SQL Server DB service to application
-var connection_string = builder.Configuration["NoaaDatabase:ConnectString"];
-builder.Services.AddDbContextFactory<SatelliteContext>(options =>
-    options.UseSqlServer(connection_string));
-
 // Adding Weather SQL Server DB service to application
 var weather_connection_string = builder.Configuration["WeatherDataBase:ConnectString"];
 builder.Services.AddDbContextFactory<WeatherContext>(options =>
@@ -45,8 +40,12 @@ builder.Services.AddIdentityApiEndpoints<IdentityUser>().AddEntityFrameworkStore
 // Adding database middleware service. Handles communication between database and backend.
 //builder.Services.AddSingleton<SatelliteService>();
 // If I wanted more than one instance
-builder.Services.AddTransient<SatelliteService>();
 builder.Services.AddTransient<WeatherService>();
+
+// Add services to the container.
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 // Build Web Application
 var app = builder.Build();
@@ -57,7 +56,11 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+
 }
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
@@ -71,27 +74,5 @@ app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
 // Minimal api section
 app.MapGet("/hi", () => "Hello!");
-
-// Satellite Database minimal apis
-app.MapGet("/satellite", async (SatelliteContext db) => await db.Satellites.ToListAsync());
-app.MapGet("/satellite/{name}", async (string name, SatelliteContext db) =>
-await db.Satellites.SingleOrDefaultAsync(x => x.Name == name));
-app.MapPost("/satellite", async (SatelliteContext db, Satellite satellite) =>
-{
-    db.Satellites.Add(satellite);
-    await db.SaveChangesAsync();
-    return Results.Ok(await db.Satellites.ToListAsync());
-});
-app.MapDelete("/satellite/{name}", async (string name, SatelliteContext context) =>
-{
-    var satellite = await context.Satellites.SingleOrDefaultAsync(x => x.Name == name);
-    if (satellite == null)
-    {
-        return Results.NotFound("Entry not found!");
-    }
-    context.Satellites.Remove(satellite);
-    await context.SaveChangesAsync();
-    return Results.Ok();
-});
 
 app.Run();
