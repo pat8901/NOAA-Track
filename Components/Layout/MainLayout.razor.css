@@ -98,3 +98,9 @@ main {
     right: 0.75rem;
     top: 0.5rem;
 }
+
+.btn-delete {
+    color: #fff;
+    background-color: #c21b1b;
+    border-color: #ac1818;
+}
