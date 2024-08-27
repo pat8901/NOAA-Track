@@ -32,7 +32,7 @@ else
             @foreach (var item in satellite_list)
             {
                 <tr>
-                    <td>@item.Id</td>
+                    <td><a style="text-decoration: none;" href="/satellite/@item.Id">@item.Id</a></td>
                     <td>@item.Name</td>
                     <td>@item.LaunchDate</td>
                 </tr>
