@@ -32,8 +32,9 @@ Sample text.
 ## TODO
 * Integrating NOAA-APT (Automatic Picture Transmission demodulator in C) into .Net webapp 
 * Add error handling for the various api endpoint return codes
-- [] Hyperlink from satellite home to navigate to satellite entries
-- [] Implement back buttons
+* Hyperlink from satellite home to navigate to satellite entries
+* Implement back buttons
+* Add more attributes for satellite entries
 
 ## License
 This project is licensed under the GPLv3 License. See the LICENSE file for more details.

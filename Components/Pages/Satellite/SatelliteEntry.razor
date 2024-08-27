@@ -3,6 +3,7 @@
 @using NOAA_Track.Database
 @using NOAA_Track.Services
 @rendermode InteractiveServer
+@inject NavigationManager NavigationManager
 
 
 <PageTitle>Satellite Entry</PageTitle>
@@ -21,7 +22,8 @@
             <td>@satellite.Id</td>
             <td>@satellite.Name</td>
             <td>@satellite.LaunchDate</td>
-            <button class="btn-primary" onclick="@SatelliteDelete">delete</button>
+            <td><button style="color: #fff;background-color: #c21b1b;border-color: #ac1818;"
+                    onclick="@SatelliteDelete">delete</button></td>
         </tr>
     </tbody>
 </table>
@@ -75,7 +77,7 @@
         }
         finally
         {
-            // navigate back to satellite home page
+            NavigationManager.NavigateTo("satellite");
         }
     }
 }
