@@ -14,14 +14,19 @@
         <tr>
             <th>ID</th>
             <th>Name</th>
-            <th>Launch Date</th>
+            <th>Created</th>
+            <th>Description</th>
+            <th>More Info</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td>@satellite.Id</td>
             <td>@satellite.Name</td>
-            <td>@satellite.LaunchDate</td>
+            <td>@satellite.DateCreated</td>
+            <td>@satellite.Description</td>
+            <td><a style="text-decoration: none;" href="@satellite.Link">Link</a></td>
             <td><button style="color: #fff;background-color: #c21b1b;border-color: #ac1818;"
                     onclick="@SatelliteDelete">delete</button></td>
         </tr>

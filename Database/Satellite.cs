@@ -23,6 +23,8 @@ namespace NOAA_Track.Database
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public DateTime LaunchDate { get; set; }
+        public DateTime? DateCreated { get; set; }
+        public string? Description { get; set; }
+        public string? Link { get; set; }
     }
 }

@@ -25,16 +25,20 @@ else
             <tr>
                 <th>ID</th>
                 <th>Name</th>
-                <th>Launch Date</th>
+                <th>Created</th>
+                <th>Description</th>
+                <th>More Info</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in satellite_list)
+            @foreach (var satellite in satellite_list)
             {
                 <tr>
-                    <td><a style="text-decoration: none;" href="/satellite/@item.Id">@item.Id</a></td>
-                    <td>@item.Name</td>
-                    <td>@item.LaunchDate</td>
+                    <td><a style="text-decoration: none;" href="/satellite/@satellite.Id">@satellite.Id</a></td>
+                    <td>@satellite.Name</td>
+                    <td>@satellite.DateCreated</td>
+                    <td>@satellite.Description</td>
+                    <td><a style="text-decoration: none;" href="@satellite.Link">Link</a></td>
                 </tr>
             }
         </tbody>

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NOAA_Track.Database;
 
+// TODO:
 namespace NOAA_Track.Services
 {
     public class SatelliteService
@@ -48,7 +49,6 @@ namespace NOAA_Track.Services
                 throw new Exception("Satellite does not exist!");
             }
             satellite.Name = new_name;
-            satellite.LaunchDate = DateTime.Now;
 
             context.Update(satellite);
             context.SaveChanges();
