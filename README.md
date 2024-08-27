@@ -35,6 +35,10 @@ Sample text.
 * Hyperlink from satellite home to navigate to satellite entries
 * Implement back buttons
 * Add more attributes for satellite entries
+* Add delete confirmation message to prevent accidental deletes
+* Add edit button
+
+* Add new interface to use api calls to backend to get data from a ETL process
 
 ## License
 This project is licensed under the GPLv3 License. See the LICENSE file for more details.

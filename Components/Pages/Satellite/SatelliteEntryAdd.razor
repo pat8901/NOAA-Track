@@ -14,10 +14,23 @@ How would Blazor handle this?
 
 @if (true)
 {
+    // TODO: Restrict input to prevent errors
     <EditForm Model=@satellite OnValidSubmit="HandleSubmit">
-        <label for="NameInput">Name</label>
-        <InputText id="NameInput" @bind-Value="@satellite.Name"></InputText>
-        <button type="submit" class="btn-primary">Add</button>
+        <div class="SatelliteFormAdd">
+            <label for="InputName">Name</label>
+            <InputText id="InputName" @bind-Value="@satellite.Name"></InputText>
+
+            <label for="InputDescription">Description</label>
+            <InputTextArea id="InputDescription" @bind-Value="@satellite.Description"></InputTextArea>
+
+            <label for="InputDateCreated">Date Created</label>
+            <InputDate id="InputDateCreated" @bind-Value="@satellite.DateCreated"></InputDate>
+
+            <label for="InputLink">Link</label>
+            <InputText id="InputLink" @bind-Value="@satellite.Link"></InputText>
+
+            <button type="submit" class="btn-primary">Add</button>
+        </div>
     </EditForm>
 }
 
@@ -36,7 +49,6 @@ How would Blazor handle this?
             add_input = true;
 
             var new_satellite = (Satellite)editContext.Model;
-            new_satellite.LaunchDate = DateTime.Now;
             // TODO: Set up production level endpoints
             var response = await client.PostAsJsonAsync<Satellite>($"http://localhost:3000/satellite/add?name={new_satellite.Name}",
             new_satellite);
